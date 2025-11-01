@@ -130,6 +130,9 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 					log.Printf("Failed to send message: %v", err)
 					return
 				}
+			} else {
+				log.Println("No new alert to send")
+				conn.WriteMessage(websocket.TextMessage, []byte("no new alert"))
 			}
 
 			time.Sleep(5 * time.Second)
