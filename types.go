@@ -12,6 +12,6 @@ type Alert struct {
 }
 
 type HistoryPayload struct {
-	Start time.Time `json:"device_id" bson:"device_id"`
-	End   time.Time `json:"estado"`
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
 }
