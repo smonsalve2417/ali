@@ -10,3 +10,8 @@ type Alert struct {
 	Yawns    int       `json:"yawns"`
 	Ts       time.Time `json:"time"`
 }
+
+type HistoryPayload struct {
+	Start time.Time `json:"device_id" bson:"device_id"`
+	End   time.Time `json:"estado"`
+}

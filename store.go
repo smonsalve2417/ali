@@ -4,6 +4,7 @@ package main
 
 import (
 	"database/sql"
+	"time"
 )
 
 type store struct {
@@ -15,7 +16,7 @@ func NewStore(db *sql.DB) *store {
 }
 
 func (s *store) GetAlerts() ([]Alert, error) {
-	query := `SELECT TOP 10 device_id, estado, perclos, blinks, yawns, ts FROM alerts`
+	query := `SELECT device_id, estado, perclos, blinks, yawns, ts FROM alerts ORDER BY ts DESC LIMIT 10`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -30,6 +31,9 @@ func (s *store) GetAlerts() ([]Alert, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		a.Ts = AjustaHora(a.Ts)
+
 		alerts = append(alerts, a)
 	}
 
@@ -38,4 +42,78 @@ func (s *store) GetAlerts() ([]Alert, error) {
 	}
 
 	return alerts, nil
+}
+
+func (s *store) GetLastAlert() ([]Alert, error) {
+	query := `SELECT device_id, estado, perclos, blinks, yawns, ts FROM alerts ORDER BY ts DESC LIMIT 1`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var alerts []Alert
+	for rows.Next() {
+		var a Alert
+		err := rows.Scan(&a.DeviceID, &a.Estado, &a.PercLOS, &a.Blinks, &a.Yawns, &a.Ts)
+		if err != nil {
+			return nil, err
+		}
+
+		a.Ts = AjustaHora(a.Ts)
+
+		alerts = append(alerts, a)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return alerts, nil
+}
+
+func (s *store) GetAlertsByRange(startDate, endDate time.Time) ([]Alert, error) {
+	query := `
+		SELECT device_id, estado, perclos, blinks, yawns, ts 
+		FROM alerts 
+		WHERE ts BETWEEN ? AND ?
+		ORDER BY ts ASC
+	`
+
+	startDate = AjustaHoraAdd5(startDate)
+	endDate = AjustaHoraAdd5(endDate)
+
+	rows, err := s.db.Query(query, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var alerts []Alert
+	for rows.Next() {
+		var a Alert
+		err := rows.Scan(&a.DeviceID, &a.Estado, &a.PercLOS, &a.Blinks, &a.Yawns, &a.Ts)
+		if err != nil {
+			return nil, err
+		}
+
+		// Ajustar zona horaria (-5h)
+		a.Ts = AjustaHora(a.Ts)
+
+		alerts = append(alerts, a)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return alerts, nil
+}
+
+func AjustaHora(t time.Time) time.Time {
+	return t.Add(-5 * time.Hour)
+}
+func AjustaHoraAdd5(t time.Time) time.Time {
+	return t.Add(5 * time.Hour)
 }
