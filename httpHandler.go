@@ -84,12 +84,7 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("A new user has joined")
 
-	lastAlert, err := h.store.GetLastAlert()
-	if err != nil {
-		log.Printf("Failed to get last alert: %v", err)
-		WriteError(w, http.StatusInternalServerError, "DB error: "+err.Error())
-		return
-	}
+	lastAlert := []Alert{}
 
 	done := make(chan struct{})
 
@@ -103,13 +98,6 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}()
-
-	err = conn.WriteJSON(lastAlert)
-	if err != nil {
-		log.Printf("Failed to send message: %v", err)
-		WriteError(w, http.StatusInternalServerError, "DB error: "+err.Error())
-		return
-	}
 
 	for {
 		select {
@@ -140,7 +128,7 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			time.Sleep(5 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 	}
 }
