@@ -91,8 +91,6 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("A new user has joined")
 
-	lastAlert := []Alert{}
-
 	done := make(chan struct{})
 
 	go func() {
@@ -106,12 +104,30 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	// 🔹 Obtener el último alerta antes de entrar al bucle
+	lastAlert, err := h.store.GetLastAlert()
+	if err != nil {
+		log.Printf("Initial DB error: %v", err)
+		lastAlert = []Alert{}
+	}
+
+	// 🔹 Si no hay alerta previa, inicializar vacío
+	if len(lastAlert) > 0 {
+		lastAlert[0].New = true // primer dato se marca como nuevo
+		if err := conn.WriteJSON(lastAlert); err != nil {
+			log.Printf("Failed to send initial message: %v", err)
+			return
+		}
+	}
+
 	for {
 		select {
 		case <-done:
 			log.Println("Stopping sender loop")
 			return
 		default:
+			time.Sleep(10 * time.Second)
+
 			alert, err := h.store.GetLastAlert()
 			if err != nil {
 				log.Printf("DB error: %v", err)
@@ -120,11 +136,10 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if len(alert) == 0 {
-				time.Sleep(10 * time.Second)
 				continue
 			}
 
-			if len(lastAlert) > 0 && alert[0].Ts != lastAlert[0].Ts {
+			if len(lastAlert) == 0 || alert[0].Ts != lastAlert[0].Ts {
 				alert[0].New = true
 				lastAlert = alert
 			} else {
@@ -135,8 +150,6 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Failed to send message: %v", err)
 				return
 			}
-
-			time.Sleep(10 * time.Second)
 		}
 	}
 }
