@@ -69,7 +69,14 @@ func (h *handler) HandleGetHistoryAlerts(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	WriteJSON(w, http.StatusOK, response)
+	Stats := h.store.CalcularEstadisticas(response)
+
+	finalResponse := StatsPayload{
+		Alerts:     response,
+		AlertStats: Stats,
+	}
+
+	WriteJSON(w, http.StatusOK, finalResponse)
 
 }
 
@@ -111,21 +118,22 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 				time.Sleep(5 * time.Second)
 				continue
 			}
-			alert[0].New = true
 
-			if len(alert) > 0 && len(lastAlert) > 0 && alert[0].Ts != lastAlert[0].Ts {
-				lastAlert = alert
-				if err := conn.WriteJSON(alert); err != nil {
-					log.Printf("Failed to send message: %v", err)
-					return
-				}
-			} else {
-				log.Println("No new alert to send")
+			if len(alert) == 0 {
+				time.Sleep(10 * time.Second)
+				continue
+			}
+
+			if len(lastAlert) > 0 && alert[0].Ts != lastAlert[0].Ts {
 				alert[0].New = true
-				if err := conn.WriteJSON(alert); err != nil {
-					log.Printf("Failed to send message: %v", err)
-					return
-				}
+				lastAlert = alert
+			} else {
+				alert[0].New = false
+			}
+
+			if err := conn.WriteJSON(alert); err != nil {
+				log.Printf("Failed to send message: %v", err)
+				return
 			}
 
 			time.Sleep(10 * time.Second)

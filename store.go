@@ -4,6 +4,7 @@ package main
 
 import (
 	"database/sql"
+	"strings"
 	"time"
 )
 
@@ -124,4 +125,41 @@ func AjustaHora(t time.Time) time.Time {
 }
 func AjustaHoraAdd5(t time.Time) time.Time {
 	return t.Add(5 * time.Hour)
+}
+
+func (s *store) CalcularEstadisticas(alerts []Alert) AlertStats {
+	stats := AlertStats{
+		EstadoCount: map[string]int{
+			"NORMAL":       0,
+			"FATIGA":       0,
+			"SOMNOLIENCIA": 0,
+			"MICROSUEÑO":   0,
+		},
+	}
+
+	if len(alerts) == 0 {
+		return stats
+	}
+
+	var sumPerclos float64
+	for _, a := range alerts {
+		sumPerclos += a.PercLOS
+		stats.TotalBlinks += a.Blinks
+		stats.TotalYawns += a.Yawns
+
+		// contar estados (ignora mayúsculas/minúsculas)
+		switch strings.ToUpper(a.Estado) {
+		case "NORMAL":
+			stats.EstadoCount["NORMAL"]++
+		case "FATIGA":
+			stats.EstadoCount["FATIGA"]++
+		case "SOMNOLIENCIA":
+			stats.EstadoCount["SOMNOLIENCIA"]++
+		case "MICROSUEÑO":
+			stats.EstadoCount["MICROSUEÑO"]++
+		}
+	}
+
+	stats.AvgPerclos = sumPerclos / float64(len(alerts))
+	return stats
 }

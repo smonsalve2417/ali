@@ -16,3 +16,15 @@ type HistoryPayload struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 }
+
+type AlertStats struct {
+	AvgPerclos  float64        `json:"avg_perclos"`
+	TotalBlinks int            `json:"total_blinks"`
+	TotalYawns  int            `json:"total_yawns"`
+	EstadoCount map[string]int `json:"estado_count"`
+}
+
+type StatsPayload struct {
+	Alerts     []Alert    `json:"alerts"`
+	AlertStats AlertStats `json:"alert_stats"`
+}
