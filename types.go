@@ -22,6 +22,7 @@ type AlertStats struct {
 	TotalBlinks  int            `json:"total_blinks"`
 	TotalYawns   int            `json:"total_yawns"`
 	EstadoCount  map[string]int `json:"estado_count"`
+	EstadoAvg    map[string]int `json:"estado_avg"`
 	TotalRecords int            `json:"total_records"`
 }
 

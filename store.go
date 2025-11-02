@@ -146,7 +146,6 @@ func (s *store) CalcularEstadisticas(alerts []Alert) AlertStats {
 		sumPerclos += a.PercLOS
 		stats.TotalBlinks += a.Blinks
 		stats.TotalYawns += a.Yawns
-		stats.TotalRecords++
 
 		// contar estados (ignora mayúsculas/minúsculas)
 		switch strings.ToUpper(a.Estado) {
@@ -162,5 +161,11 @@ func (s *store) CalcularEstadisticas(alerts []Alert) AlertStats {
 	}
 
 	stats.AvgPerclos = sumPerclos / float64(len(alerts))
+	stats.TotalRecords = len(alerts)
+	stats.EstadoAvg = make(map[string]int)
+	for estado, count := range stats.EstadoCount {
+		stats.EstadoAvg[estado] = (count * 100) / len(alerts)
+	}
+
 	return stats
 }
