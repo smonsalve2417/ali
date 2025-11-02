@@ -153,8 +153,8 @@ func (s *store) CalcularEstadisticas(alerts []Alert) AlertStats {
 			stats.EstadoCount["NORMAL"]++
 		case "FATIGA":
 			stats.EstadoCount["FATIGA"]++
-		case "SOMNOLIENCIA":
-			stats.EstadoCount["SOMNOLIENCIA"]++
+		case "SOMNOLENCIA":
+			stats.EstadoCount["SOMNOLENCIA"]++
 		case "MICROSUEÑO":
 			stats.EstadoCount["MICROSUEÑO"]++
 		}
