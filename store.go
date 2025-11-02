@@ -146,6 +146,7 @@ func (s *store) CalcularEstadisticas(alerts []Alert) AlertStats {
 		sumPerclos += a.PercLOS
 		stats.TotalBlinks += a.Blinks
 		stats.TotalYawns += a.Yawns
+		stats.TotalRecords++
 
 		// contar estados (ignora mayúsculas/minúsculas)
 		switch strings.ToUpper(a.Estado) {
