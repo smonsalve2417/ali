@@ -162,9 +162,10 @@ func (s *store) CalcularEstadisticas(alerts []Alert) AlertStats {
 
 	stats.AvgPerclos = sumPerclos / float64(len(alerts))
 	stats.TotalRecords = len(alerts)
-	stats.EstadoAvg = make(map[string]int)
+	stats.EstadoPercent = make(map[string]int)
 	for estado, count := range stats.EstadoCount {
-		stats.EstadoAvg[estado] = (count * 100) / len(alerts)
+		percent := (float64(count) / float64(len(alerts))) * 100
+		stats.EstadoPercent[estado] = int(percent)
 	}
 
 	return stats

@@ -18,12 +18,12 @@ type HistoryPayload struct {
 }
 
 type AlertStats struct {
-	AvgPerclos   float64        `json:"avg_perclos"`
-	TotalBlinks  int            `json:"total_blinks"`
-	TotalYawns   int            `json:"total_yawns"`
-	EstadoCount  map[string]int `json:"estado_count"`
-	EstadoAvg    map[string]int `json:"estado_avg"`
-	TotalRecords int            `json:"total_records"`
+	AvgPerclos    float64        `json:"avg_perclos"`
+	TotalBlinks   int            `json:"total_blinks"`
+	TotalYawns    int            `json:"total_yawns"`
+	EstadoCount   map[string]int `json:"estado_count"`
+	EstadoPercent map[string]int `json:"estado_percent"`
+	TotalRecords  int            `json:"total_records"`
 }
 
 type StatsPayload struct {
