@@ -63,6 +63,10 @@ func (s *store) GetLastAlert() ([]Alert, error) {
 
 		a.Ts = AjustaHora(a.Ts)
 
+		if a.Estado == "" {
+			a.Estado = "NORMAL"
+		}
+
 		alerts = append(alerts, a)
 	}
 
@@ -100,6 +104,10 @@ func (s *store) GetAlertsByRange(startDate, endDate time.Time) ([]Alert, error) 
 
 		// Ajustar zona horaria (-5h)
 		a.Ts = AjustaHora(a.Ts)
+
+		if a.Estado == "" {
+			a.Estado = "NORMAL"
+		}
 
 		alerts = append(alerts, a)
 	}

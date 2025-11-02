@@ -9,6 +9,7 @@ type Alert struct {
 	Blinks   int       `json:"blinks"`
 	Yawns    int       `json:"yawns"`
 	Ts       time.Time `json:"time"`
+	New      bool      `json:"new,omitempty"`
 }
 
 type HistoryPayload struct {

@@ -63,7 +63,7 @@ func (h *handler) HandleGetHistoryAlerts(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response, err := h.store.GetAlerts()
+	response, err := h.store.GetAlertsByRange(payload.Start, payload.End)
 	if err != nil {
 		WriteError(w, http.StatusInternalServerError, "failed to get alerts: "+err.Error())
 		return
@@ -123,6 +123,7 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 				time.Sleep(5 * time.Second)
 				continue
 			}
+			alert[0].New = true
 
 			if len(alert) > 0 && len(lastAlert) > 0 && alert[0].Ts != lastAlert[0].Ts {
 				lastAlert = alert
@@ -132,7 +133,11 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 				}
 			} else {
 				log.Println("No new alert to send")
-				conn.WriteMessage(websocket.TextMessage, []byte("no new alert"))
+				alert[0].New = true
+				if err := conn.WriteJSON(alert); err != nil {
+					log.Printf("Failed to send message: %v", err)
+					return
+				}
 			}
 
 			time.Sleep(5 * time.Second)
