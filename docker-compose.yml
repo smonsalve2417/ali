@@ -8,6 +8,9 @@ services:
         - "8080:8080"   # expone tu API para que puedas llamarla desde fuera
       environment:
         RDS_ADDR: db-pf-1.cb2q0ky6cy86.us-east-2.rds.amazonaws.com
+      volumes:
+      - /etc/letsencrypt/live/safedrive.ddns.net/fullchain.pem:/app/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/safedrive.ddns.net/privkey.pem:/app/certs/privkey.pem:ro
       networks:
       - backend-network
 
