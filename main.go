@@ -43,9 +43,9 @@ func main() {
 	// ✅ Apply CORS middleware
 	corsMux := enableCORS(mux)
 
-	log.Printf("Starting HTTP server at %s", httpAddr)
-	if err := http.ListenAndServe(httpAddr, corsMux); err != nil {
-		log.Fatal("Failed to start http server:", err)
+	log.Printf("Starting HTTPS server at %s", httpAddr)
+	if err := http.ListenAndServeTLS(httpAddr, "server.crt", "server.key", corsMux); err != nil {
+		log.Fatal("Failed to start https server:", err)
 	}
 }
 
