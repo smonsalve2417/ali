@@ -57,8 +57,8 @@ func main() {
 	}
 
 	log.Printf("Starting HTTPS server at %s", httpAddr)
-	if err := server.ListenAndServeTLS("/etc/letsencrypt/live/safedrive.ddns.net/fullchain.pem",
-		"/etc/letsencrypt/live/safedrive.ddns.net/privkey.pem"); err != nil {
+	if err := server.ListenAndServeTLS("/app/certs/fullchain.pem",
+		"/app/certs/privkey.pem"); err != nil {
 		log.Fatal("Failed to start https server:", err)
 	}
 }
