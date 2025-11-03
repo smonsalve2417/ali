@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
@@ -43,8 +44,20 @@ func main() {
 	// ✅ Apply CORS middleware
 	corsMux := enableCORS(mux)
 
+	tlsConfig := &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		InsecureSkipVerify:       true, // ⚠️ Acepta cualquier certificado (solo para pruebas)
+		PreferServerCipherSuites: true,
+	}
+
+	server := &http.Server{
+		Addr:      httpAddr,
+		Handler:   corsMux,
+		TLSConfig: tlsConfig,
+	}
+
 	log.Printf("Starting HTTPS server at %s", httpAddr)
-	if err := http.ListenAndServeTLS(httpAddr, "server.crt", "server.key", corsMux); err != nil {
+	if err := server.ListenAndServeTLS("server.crt", "server.key"); err != nil {
 		log.Fatal("Failed to start https server:", err)
 	}
 }
