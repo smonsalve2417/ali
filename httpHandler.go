@@ -89,6 +89,9 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	tiempoActual := time.Now()
+	log.Printf("New WebSocket connection at %v", tiempoActual)
+
 	log.Printf("A new user has joined")
 
 	done := make(chan struct{})
@@ -114,6 +117,9 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 	// 🔹 Si no hay alerta previa, inicializar vacío
 	if len(lastAlert) > 0 {
 		lastAlert[0].New = true // primer dato se marca como nuevo
+		if tiempoActual.Sub(lastAlert[0].Ts) > 10*time.Second {
+			lastAlert[0].New = false // si el último dato es viejo, no es nuevo
+		}
 		if err := conn.WriteJSON(lastAlert); err != nil {
 			log.Printf("Failed to send initial message: %v", err)
 			return
@@ -126,7 +132,7 @@ func (h *handler) JoinRoom(w http.ResponseWriter, r *http.Request) {
 			log.Println("Stopping sender loop")
 			return
 		default:
-			time.Sleep(10 * time.Second)
+			time.Sleep(5 * time.Second)
 
 			alert, err := h.store.GetLastAlert()
 			if err != nil {
